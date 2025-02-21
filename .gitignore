@@ -10,6 +10,7 @@
 !.yarn/releases
 !.yarn/versions
 
+/myenv
 # testing
 /coverage
 
@@ -39,3 +40,23 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+# Hardhat build artifacts (ignore everything first)
+!artifacts/
+artifacts/build-info
+
+
+# Other Hardhat files
+cache/
+coverage/
+typechain/
+typechain-types/
+
+
+# Hardhat configuration
+.hardhat/
+.env
+.env.local
+.env.development
+.env.production
