@@ -90,6 +90,12 @@ def submit_claim(agent_address, highest_pool_name, user_address):
     tx_hash = web3.eth.send_raw_transaction(signed_tx.raw_transaction)
     return tx_hash.hex(), timestamp
 
+def finalize_claim_after_delay(claim_id_bytes32, user_address):
+    """Waits for dispute window and finalizes the claim."""
+    time.sleep(5 * 60)  # Wait for dispute window
+    finalize_claim(claim_id_bytes32, user_address)
+
+    
 def finalize_claim(claim_id_bytes32, user_address):
     """Finalize claim and notify user of the outcome.
        If the claim is not disputed, the contract returns the bond and transfers the reward directly to the user.
@@ -167,10 +173,15 @@ def monitor_pools(user_address):
 
     print(f"Claim ID (hex): {claim_id_hex}. Waiting for dispute window...")
 
-    time.sleep(5 * 60)  # Wait for dispute window
+     # Run finalize_claim in a background thread
+    threading.Thread(target=finalize_claim_after_delay, args=(claim_id_bytes32, user_address)).start()
+
+    return claim_id_hex  
+
+    # time.sleep(5 * 60)  # Wait for dispute window
 
     
-    finalize_claim(claim_id_bytes32, user_address)
+    # finalize_claim(claim_id_bytes32, user_address)
 
 def submit_dispute(disputer_address, claim_id):
     """Disputer submits a dispute for a given claim ID.
@@ -194,12 +205,17 @@ def receive_input():
     user_address = data.get("user_address")
     global email
     email = data.get("email")
-    print(email)
+   
     if not user_address:
         return jsonify({"error": "Invalid input"}), 400
 
-    threading.Thread(target=monitor_pools, args=(user_address,)).start()
-    return jsonify({"message": "Monitoring started", "user_address": user_address})
+    claim_id_hex = monitor_pools(user_address)
+
+    return jsonify({
+        "message": "Claim submitted successfully by Agent",
+        "user_address": user_address,
+        "claim_id": claim_id_hex
+    })
 
 @app.route("/dispute", methods=["POST"])
 def receive_dispute():

@@ -6,7 +6,7 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [walletAddress, setWalletAddress] = useState("");
   const [disputerAddress, setDisputerAddress] = useState("")
-  const [selectedPool, setSelectedPool] = useState("");
+  // const [selectedPool, setSelectedPool] = useState("");
   const [status, setStatus] = useState("");
   const [claimId, setClaimId] = useState("");
   const [disputeStatus, setDisputeStatus] = useState("");
@@ -24,7 +24,7 @@ export default function Home() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!walletAddress || !selectedPool) {
+    if (!walletAddress) {
       setStatus("Please fill in all required fields.");
       return;
     }
@@ -33,10 +33,18 @@ export default function Home() {
       const response = await axios.post("http://localhost:5000/submit", {
         email: email,
         user_address: walletAddress,
-        selected_pool: selectedPool,
+        // selected_pool: selectedPool,
       });
+      
+      setStatus(`Monitoring started for wallet: ${walletAddress}`);
 
-      setStatus(`Monitoring started for wallet: ${walletAddress} and pool: ${selectedPool}`);
+      // Extract data from the response
+      const { message, claim_id } = response.data;
+
+      // Update status with claim ID
+      setStatus(`${message} \n | Claim ID: ${claim_id}`);
+
+      
     } catch (error) {
       console.error("Error submitting request:", error);
       setStatus("Failed to start monitoring. Please try again.");
@@ -93,22 +101,25 @@ export default function Home() {
               required
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Select Pool</label>
-            <select
-              value={selectedPool}
-              onChange={(e) => setSelectedPool(e.target.value)}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              required
-            >
-              <option value="" disabled>Select a pool</option>
-              {pools.map((pool, index) => (
-                <option key={index} value={pool.pool_name}>
-                  {pool.pool_name}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/*
+            <div>
+                <label className="block text-sm font-medium text-gray-700">Select Pool</label>
+                <select
+                  value={selectedPool}
+                  onChange={(e) => setSelectedPool(e.target.value)}
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  required
+                >
+                  <option value="" disabled>Select a pool</option>
+                  {pools.map((pool, index) => (
+                    <option key={index} value={pool.pool_name}>
+                      {pool.pool_name}
+                    </option>
+                  ))}
+                </select>
+            </div>
+          */}
+
           <button
             type="submit"
             className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
