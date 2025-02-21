@@ -95,7 +95,7 @@ def finalize_claim_after_delay(claim_id_bytes32, user_address):
     time.sleep(5 * 60)  # Wait for dispute window
     finalize_claim(claim_id_bytes32, user_address)
 
-    
+
 def finalize_claim(claim_id_bytes32, user_address):
     """Finalize claim and notify user of the outcome.
        If the claim is not disputed, the contract returns the bond and transfers the reward directly to the user.
@@ -176,7 +176,7 @@ def monitor_pools(user_address):
      # Run finalize_claim in a background thread
     threading.Thread(target=finalize_claim_after_delay, args=(claim_id_bytes32, user_address)).start()
 
-    return claim_id_hex  
+    return (claim_id_hex, highest_pool_name)  
 
     # time.sleep(5 * 60)  # Wait for dispute window
 
@@ -209,12 +209,14 @@ def receive_input():
     if not user_address:
         return jsonify({"error": "Invalid input"}), 400
 
-    claim_id_hex = monitor_pools(user_address)
+    data = monitor_pools(user_address)
 
     return jsonify({
         "message": "Claim submitted successfully by Agent",
+        "pool_name": data[1],
         "user_address": user_address,
-        "claim_id": claim_id_hex
+        "claim_id": data[0]
+
     })
 
 @app.route("/dispute", methods=["POST"])

@@ -7,7 +7,7 @@ export default function Home() {
   const [walletAddress, setWalletAddress] = useState("");
   const [disputerAddress, setDisputerAddress] = useState("")
   // const [selectedPool, setSelectedPool] = useState("");
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState(<></>);
   const [claimId, setClaimId] = useState("");
   const [disputeStatus, setDisputeStatus] = useState("");
 
@@ -25,7 +25,7 @@ export default function Home() {
     e.preventDefault();
 
     if (!walletAddress) {
-      setStatus("Please fill in all required fields.");
+      setStatus(<>Please fill in all required fields.</>);
       return;
     }
 
@@ -36,18 +36,26 @@ export default function Home() {
         // selected_pool: selectedPool,
       });
       
-      setStatus(`Monitoring started for wallet: ${walletAddress}`);
+      // setStatus(`Monitoring started for wallet: ${walletAddress}`);
 
       // Extract data from the response
-      const { message, claim_id } = response.data;
+      const { message, pool_name, user_address, claim_id } = response.data;
 
       // Update status with claim ID
-      setStatus(`${message} \n | Claim ID: ${claim_id}`);
+      // setStatus(`<>${message} <br/> Claim ID: ${claim_id} </>`);
+      setStatus(
+        <>
+          <strong>{message} for {pool_name}</strong>
+          <br />
+          Claim ID: <code>{claim_id}</code>
+        </>
+      );
+      
 
       
     } catch (error) {
       console.error("Error submitting request:", error);
-      setStatus("Failed to start monitoring. Please try again.");
+      setStatus(<>Failed to start monitoring. Please try again.</>);
     }
   };
 
